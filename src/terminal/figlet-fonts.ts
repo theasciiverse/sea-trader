@@ -7,7 +7,7 @@ import standard from "figlet/importable-fonts/Standard.js";
 figlet.parseFont("Small", small);
 figlet.parseFont("Standard", standard);
 
-/** Big lettering for a screen title, with an empty line above and below. */
-export const bigText = (text: string) => `\n${figlet.textSync(text, { font: "Small", horizontalLayout: "full" })}\n`;
+/** Big capitals for a screen title, with an empty line above and below, as cfonts drew them. */
+export const bigText = (text: string) => `\n${figlet.textSync(text.toUpperCase(), { font: "Small", horizontalLayout: "full" })}\n`;
 
 export const titleText = (text: string) => figlet.textSync(text, { font: "Standard" });
