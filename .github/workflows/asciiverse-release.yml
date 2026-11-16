@@ -40,8 +40,8 @@ jobs:
         include:
           - { target: x86_64-unknown-linux-gnu, os: ubuntu-22.04, bun: bun-linux-x64-baseline, exe: sea-trader, smoke: true }
           - { target: aarch64-unknown-linux-gnu, os: ubuntu-22.04-arm, bun: bun-linux-arm64, exe: sea-trader, smoke: true }
-          - { target: aarch64-apple-darwin, os: macos-14, bun: bun-darwin-arm64, exe: sea-trader, smoke: true }
-          - { target: x86_64-apple-darwin, os: macos-14, bun: bun-darwin-x64, exe: sea-trader, smoke: false }
+          - { target: aarch64-apple-darwin, os: macos-15, bun: bun-darwin-arm64, exe: sea-trader, smoke: true }
+          - { target: x86_64-apple-darwin, os: macos-15, bun: bun-darwin-x64, exe: sea-trader, smoke: false }
           - { target: x86_64-pc-windows-msvc, os: windows-2022, bun: "", exe: sea-trader.exe, smoke: false }
     runs-on: ${{ matrix.os }}
     defaults:
