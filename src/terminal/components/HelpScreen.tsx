@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Box, DOMElement, measureElement, Text, useInput } from "ink";
-import BigText from "ink-big-text";
 import { UnorderedList } from "@inkjs/ui";
 import { useAnchorToTop } from "./Viewport.js";
+import { bigText } from "../figlet-fonts.js";
 import { displayMonetaryValue, helpView, joinWords } from "../../game/index.js";
 
 export function HelpScreen({ onClose }: { onClose: () => void }) {
@@ -29,7 +29,7 @@ export function HelpScreen({ onClose }: { onClose: () => void }) {
   return (
     <Box width="100%" flexGrow={1} flexDirection="column" alignItems="center">
       <Box flexDirection="column" marginBottom={1} ref={setRef}>
-        <BigText text="How to play" font="simple" />
+        <Text>{bigText("How to play")}</Text>
         <Text>{"-".repeat(width)}</Text>
       </Box>
       <Box flexDirection="column" width={width + 10} gap={1}>

@@ -1,9 +1,9 @@
 import { Box, DOMElement, measureElement, Spacer, Text, useInput } from "ink";
-import BigText from "ink-big-text";
 import React, { useEffect, useState } from "react";
 import { GameContext } from "./GameContext.js";
 import { usePreferences } from "./Preferences.js";
 import { Badge } from "@inkjs/ui";
+import { bigText } from "../figlet-fonts.js";
 
 export function StartScreen({ onShowHelp }: { onShowHelp: () => void }) {
   const actor = GameContext.useActorRef();
@@ -41,7 +41,7 @@ export function StartScreen({ onShowHelp }: { onShowHelp: () => void }) {
   return (
     <Box width="100%" flexGrow={1} flexDirection="column" alignItems="center">
       <Box flexDirection="column" marginTop={2} ref={setRef}>
-        <BigText text="Sea Trader" font="simple" />
+        <Text>{bigText("Sea Trader")}</Text>
         <Text>{"-".repeat(width)}</Text>
       </Box>
 
