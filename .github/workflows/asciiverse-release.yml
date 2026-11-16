@@ -1,0 +1,111 @@
+# Builds Sea Trader for the Asciiverse catalog: one archive per target,
+# named <id>-<target>.tar.gz (.zip on Windows), plus a SHA256SUMS file,
+# attached to a GitHub release (hub/catalog/SCHEMA.md, release.source =
+# "github"). Runs on a pushed v* tag, or by hand for an existing tag.
+#
+# Each archive holds one sea-trader executable made with `bun build
+# --compile` (asciiverse/build.sh): the game, its libraries and the Bun
+# runtime in one file, so players need no Node or npm. The packages come
+# from upstream's package-lock.json through `npm ci`. Each target builds on
+# its own platform; Linux and macOS on Apple silicon are smoke-tested in a
+# pseudo-terminal. macOS Intel is cross-built on the Apple silicon runner.
+
+name: asciiverse-release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "existing tag to build and release"
+        required: true
+
+env:
+  ID: sea-trader
+  TAG: ${{ inputs.tag || github.ref_name }}
+  BUN: "1.2.20"
+  NODE: "22"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { target: x86_64-unknown-linux-gnu, os: ubuntu-22.04, bun: bun-linux-x64-baseline, exe: sea-trader, smoke: true }
+          - { target: aarch64-unknown-linux-gnu, os: ubuntu-22.04-arm, bun: bun-linux-arm64, exe: sea-trader, smoke: true }
+          - { target: aarch64-apple-darwin, os: macos-14, bun: bun-darwin-arm64, exe: sea-trader, smoke: true }
+          - { target: x86_64-apple-darwin, os: macos-14, bun: bun-darwin-x64, exe: sea-trader, smoke: false }
+          - { target: x86_64-pc-windows-msvc, os: windows-2022, bun: bun-windows-x64-baseline, exe: sea-trader.exe, smoke: false }
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE }}
+          cache: npm
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ env.BUN }}
+
+      - name: Packages
+        run: npm ci --ignore-scripts --no-audit --no-fund
+
+      - name: Build
+        run: sh asciiverse/build.sh ${{ matrix.bun }} ${{ matrix.exe }}
+
+      - name: Sign (ad hoc)
+        if: runner.os == 'macOS'
+        run: codesign --force --sign - stage/${{ matrix.exe }}
+
+      - name: Smoke test
+        if: matrix.smoke
+        run: python3 asciiverse/smoke.py stage/${{ matrix.exe }}
+
+      - name: Package
+        run: |
+          # the executable sits at the top of the archive, where av looks for it
+          mkdir -p dist
+          if [ "${{ runner.os }}" = Windows ]; then
+            (cd stage && 7z a -tzip "../dist/$ID-${{ matrix.target }}.zip" .)
+          else
+            tar -czf "dist/$ID-${{ matrix.target }}.tar.gz" -C stage .
+          fi
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.target }}
+          path: dist/*
+
+  release:
+    needs: build
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Checksums
+        working-directory: dist
+        run: sha256sum * > SHA256SUMS && cat SHA256SUMS
+
+      - name: Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view "$TAG" -R "$GITHUB_REPOSITORY" >/dev/null 2>&1 \
+            || gh release create "$TAG" -R "$GITHUB_REPOSITORY" --title "Sea Trader $TAG" \
+                 --notes "Sea Trader $TAG from zyishai/sea-trader, one executable per platform made with bun build --compile, built for the Asciiverse catalog."
+          gh release upload "$TAG" dist/* -R "$GITHUB_REPOSITORY" --clobber
