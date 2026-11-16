@@ -45,7 +45,9 @@ connections.
   (with top-level await, which Node's single executables do not take). It
   changes one line of `node_modules/yoga-wasm-web/dist/node.js` before
   bundling, so Ink's layout engine imports `yoga.wasm` (embedded by Bun)
-  instead of reading it from disk; it fails if that line ever changes.
+  instead of reading it from disk; it fails if that line ever changes. It
+  also empties Ink's `devtools.js`, which connects to React's developer
+  tools when `DEV=true`, so they are not built in.
 - `.github/workflows/asciiverse-release.yml`: builds Linux x86-64 and
   ARM64, macOS Apple silicon and Intel, and Windows x86-64, smoke-tests
   Linux and macOS Apple silicon, and attaches archives and SHA256SUMS to

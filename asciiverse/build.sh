@@ -14,8 +14,9 @@
 # yoga-wasm-web, whose Node entry reads yoga.wasm from beside itself at run
 # time; that file is not inside a compiled executable, so the entry is
 # changed in node_modules to import the WebAssembly file instead, which Bun
-# then embeds. React is built for production; React's developer tools,
-# which Ink loads only when DEV=true, are left out.
+# then embeds. React is built for production. Ink connects to React's
+# developer tools when DEV=true; its devtools.js is emptied so they are
+# not built in (left as an external import, Bun loads it at start).
 set -eu
 root=$(cd "$(dirname "$0")/.." && pwd)
 cd "$root"
@@ -28,11 +29,12 @@ if ! grep -q 'yoga.wasm" with' "$yoga"; then
   grep -q 'yoga.wasm" with' "$yoga" || { echo "build.sh: $yoga has changed, the yoga.wasm patch did not apply" >&2; exit 1; }
 fi
 
+printf 'export {};\n' > node_modules/ink/build/devtools.js
+
 rm -rf stage
 mkdir -p stage
 bun build src/cli.tsx --compile --minify \
   --define 'process.env.NODE_ENV="production"' \
-  --external react-devtools-core \
   ${target:+--target="$target"} \
   --outfile "stage/$out"
 cp LICENSE CHANGELOG.md PATCHES.md stage/

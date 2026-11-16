@@ -9,6 +9,8 @@
 # from upstream's package-lock.json through `npm ci`. Each target builds on
 # its own platform; Linux and macOS on Apple silicon are smoke-tested in a
 # pseudo-terminal. macOS Intel is cross-built on the Apple silicon runner.
+# Windows builds for the runner's own CPU without --target: Bun 1.2.20
+# fails to cache a cross-built runtime there (EPERM).
 
 name: asciiverse-release
 
@@ -40,7 +42,7 @@ jobs:
           - { target: aarch64-unknown-linux-gnu, os: ubuntu-22.04-arm, bun: bun-linux-arm64, exe: sea-trader, smoke: true }
           - { target: aarch64-apple-darwin, os: macos-14, bun: bun-darwin-arm64, exe: sea-trader, smoke: true }
           - { target: x86_64-apple-darwin, os: macos-14, bun: bun-darwin-x64, exe: sea-trader, smoke: false }
-          - { target: x86_64-pc-windows-msvc, os: windows-2022, bun: bun-windows-x64-baseline, exe: sea-trader.exe, smoke: false }
+          - { target: x86_64-pc-windows-msvc, os: windows-2022, bun: "", exe: sea-trader.exe, smoke: false }
     runs-on: ${{ matrix.os }}
     defaults:
       run:
@@ -63,7 +65,7 @@ jobs:
         run: npm ci --ignore-scripts --no-audit --no-fund
 
       - name: Build
-        run: sh asciiverse/build.sh ${{ matrix.bun }} ${{ matrix.exe }}
+        run: sh asciiverse/build.sh "${{ matrix.bun }}" "${{ matrix.exe }}"
 
       - name: Sign (ad hoc)
         if: runner.os == 'macOS'
