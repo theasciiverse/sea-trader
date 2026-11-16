@@ -29,7 +29,8 @@ connections.
   and "How to play" with ink-big-text, which uses cfonts (GPL-3.0-or-later)
   and reads its font files from disk; the screen titles used figlet.js,
   which also read its "Standard" font from disk. Both now come from
-  figlet.js with the "Small" and "Standard" fonts imported as modules, so
+  figlet.js with the "Small" (in capitals, as cfonts drew it) and
+  "Standard" fonts imported as modules, so
   the single executable finds them and everything in it is under MIT or
   similar terms. "Small" is the figlet font cfonts' "simple" follows, so
   the lettering looks the same. ink-big-text stays in `package.json` and
@@ -53,9 +54,11 @@ connections.
   branch.
 - `asciiverse/smoke.py`: the smoke test (80x32, empty HOME, scratch
   `XDG_STATE_HOME`, checks that nothing is written).
+- `asciiverse/record-preview.sh`, `asciiverse/drive.py`: record the
+  100x30 preview, a scripted first trade, in a tmux pane.
 - `asciiverse/README.md`: the package README, shipped in the archive.
-- `asciiverse/sea-trader.toml`, `.md`: the catalog manifest and store
-  page, drafts for `hub/catalog`.
+- `asciiverse/sea-trader.toml`, `.md`, `.cast`: the catalog manifest,
+  store page and 100x30 preview, drafts for `hub/catalog`.
 
 ## Not changed
 
