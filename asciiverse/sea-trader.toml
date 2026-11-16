@@ -9,7 +9,7 @@ repo = "theasciiverse/sea-trader"
 provenance = "Yishai Zehavi began Sea Trader in November 2024 as a game you start with one npx command, and over the next three months grew it through thirty releases into seasons, merchant tips and pirates; he came back to it in October 2026 to make it fit any terminal."
 changes = "PATCHES.md"
 topics = ["trading", "strategy", "economy", "sailing", "pirates", "19th century", "turn-based", "typescript"]
-genre = "strategy"
+genre = "trading"
 new = true
 
 [developer]
